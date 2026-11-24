@@ -11,7 +11,7 @@ import numpy as np
 import torch
 from sb3_contrib import CrossQ
 
-from experiment import ROOT, TEST_SEEDS, digest, episode, make_env, save_csv, save_json, summarize
+from experiment import ROOT, TEST_SEEDS, LATERAL_TEST_SEEDS, digest, episode, make_env, save_csv, save_json, summarize
 
 INK, BLUE, ORANGE = "#182736", "#106f7b", "#ad501e"
 
@@ -55,11 +55,13 @@ def charts(out, rows, training):
     plt.close(fig)
 
 
-def evaluate(model_file, out, training, seeds=TEST_SEEDS):
+def evaluate(model_file, out, training, seeds=None, *, lateral_start=False):
     torch.set_num_threads(1)
     out.mkdir(parents=True, exist_ok=True)
     model = CrossQ.load(model_file, device="cpu")
-    env = make_env()
+    env = make_env(lateral_start=lateral_start)
+    if seeds is None:
+        seeds = LATERAL_TEST_SEEDS if lateral_start else TEST_SEEDS
     rows = []
     for s in seeds:
         for policy in (None, model):
@@ -73,6 +75,17 @@ def evaluate(model_file, out, training, seeds=TEST_SEEDS):
                   random_action_seed_offset=100_000, reward_sd_ddof=1, policies=summary,
                   mean_paired_gain=float(differences.mean()), positive_pairs=int((differences>0).sum()),
                   paired_bootstrap_95_ci=np.quantile(boot, [.025,.975]).tolist())
+    if lateral_start:
+        record["lateral_start"] = True
+        by_side = {}
+        for side in ("left", "right"):
+            side_results = {}
+            for policy in summary:
+                flights = [r for r in rows if r["policy"] == policy and r["start_side"] == side]
+                if len(flights) >= 2:
+                    side_results[policy] = summarize(flights)
+            by_side[side] = side_results
+        record["policies_by_start_side"] = by_side
     save_csv(out / "evaluation_results.csv", rows)
     save_json(out / "evaluation_results.json", record)
     charts(out, rows, training)
@@ -85,5 +98,6 @@ if __name__ == "__main__":
     p.add_argument("--model", type=Path, default=ROOT / "models/best_model.zip")
     p.add_argument("--out", type=Path, default=ROOT / "results")
     p.add_argument("--training", type=Path, default=ROOT / "results")
+    p.add_argument("--lateral-start", action="store_true")
     a = p.parse_args()
-    evaluate(a.model, a.out, a.training)
+    evaluate(a.model, a.out, a.training, lateral_start=a.lateral_start)
