@@ -1,4 +1,5 @@
 """Exercise physics, continuous control, real gradient steps and model roundtrip."""
+import math
 import sys
 import tempfile
 from pathlib import Path
@@ -10,7 +11,37 @@ from sb3_contrib import CrossQ
 from experiment import make_env
 
 
+def check_lateral_starts():
+    standard = make_env()
+    lateral = make_env(lateral_start=True)
+    sides = set()
+    for seed in range(64):
+        original_obs, _ = standard.reset(seed=seed)
+        obs, info = lateral.reset(seed=seed)
+        repeated_obs, repeated_info = lateral.reset(seed=seed)
+        np.testing.assert_array_equal(obs, repeated_obs)
+        assert repeated_info == info
+        assert lateral.observation_space.contains(obs)
+        np.testing.assert_array_equal(obs[[0, 1, 4, 5, 6, 7]], original_obs[[0, 1, 4, 5, 6, 7]])
+
+        original_vx, original_vy = standard.unwrapped.lander.linearVelocity
+        vx, vy = lateral.unwrapped.lander.linearVelocity
+        assert math.isclose(math.hypot(vx, vy), math.hypot(original_vx, original_vy), abs_tol=1e-6)
+        assert abs(vy) <= abs(vx) + 1e-6
+        assert info["start_side"] == ("left" if vx < 0 else "right")
+        sides.add(info["start_side"])
+        shaping = standard.unwrapped.prev_shaping + 100 * (
+            math.hypot(*original_obs[2:4]) - math.hypot(*obs[2:4])
+        )
+        np.testing.assert_allclose(lateral.unwrapped.prev_shaping, shaping, atol=2e-5, rtol=0)
+    assert sides == {"left", "right"}
+    standard.close()
+    lateral.close()
+    print("Passed: seeded lateral starts within 45°, preserved speed and consistent initial shaping.")
+
+
 def main():
+    check_lateral_starts()
     torch.set_num_threads(1)
     env = make_env()
     obs, _ = env.reset(seed=13)

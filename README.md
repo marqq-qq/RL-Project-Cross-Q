@@ -70,6 +70,33 @@ python train.py --profile standard --run runs/reproduction --resume --steps 2400
 
 A completed block writes its model, optimizers, replay data, validation history and logs before publishing `latest.json`. Restarting begins a new seeded physics episode. The Box2D world and exact random generator positions are not checkpointed, so a restarted trajectory can diverge from an uninterrupted run. The bundled model can fly immediately. Continuing *the archived run* with its exact replay history requires the local training run directory, which is excluded from the submission ZIP for size.
 
+### Fine-tune on lateral starts
+
+The optional lateral environment rotates the initial physical velocity into a uniformly sampled
+direction within 45 degrees of either horizontal axis. The two sides are equally likely,
+and the physical speed at reset is preserved. The original environment remains the default.
+
+```bash
+python evaluate.py --lateral-start --out runs/lateral45/baseline
+python train.py --lateral-start --initial-model models/best_model.zip --run runs/lateral45 --steps 205000 --interval 10000
+python evaluate.py --lateral-start --model runs/lateral45/export/models/best_model.zip --training runs/lateral45/export/results --out runs/lateral45/test
+```
+
+The 205,000-step budget includes the source model's 180,000 steps. The first 5,000 new
+transitions fill fresh replay using the loaded policy with gradient updates disabled.
+Fine-tuning uses the saved optimizer states and a learning rate of 0.0003. The lateral test
+uses 50 fixed seeds (9200–9249) and records the initial side and angle for each flight.
+To continue an interrupted run, keep `--lateral-start` and replace `--initial-model PATH`
+with `--resume`.
+
+The validation-selected checkpoint at 200,000 cumulative steps is available as
+[`models/lateral45_finetuned.zip`](models/lateral45_finetuned.zip). On the same 50 lateral
+starts, the source model landed 50 times with a mean return of 277.89. The fine-tuned model
+landed 49 times with a mean return of 272.07 and one timeout. Its median episode length
+fell from 239 to 208.5 steps. [Paired results](results/lateral45/comparison.json) and
+[per-flight records](results/lateral45/) contain the full comparison.
+
+
 To reproduce model selection across all three completed runs, use the training commands below in addition to the standard run above. The selector only reads training exports and validation histories.
 
 ```bash
