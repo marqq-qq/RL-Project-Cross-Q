@@ -1,0 +1,47 @@
+{
+  "steps": 200000,
+  "updates": 190000,
+  "training_seed": 19,
+  "validation_seeds": [
+    4100,
+    4101,
+    4102,
+    4103,
+    4104,
+    4105,
+    4106,
+    4107,
+    4108,
+    4109
+  ],
+  "config": {
+    "learning_rate": 0.001,
+    "learning_starts": 10000,
+    "buffer_size": 200000,
+    "batch_size": 128,
+    "gamma": 0.99,
+    "train_freq": 1,
+    "gradient_steps": 1,
+    "policy_delay": 3,
+    "ent_coef": "auto",
+    "policy_kwargs": {
+      "net_arch": [
+        128,
+        128
+      ],
+      "use_sde": false
+    }
+  },
+  "profile": "standard",
+  "interval": 10000,
+  "seconds_learning": 1196.3161103748716,
+  "episodes": 422,
+  "selected_step": 180000,
+  "selected_validation_mean": 280.9113498748976,
+  "model_sha256": "04c045d5629bfcf359a753ae4c087a684f27d0782d8e36cb006538c3540b0035",
+  "device": "cpu",
+  "torch_threads": 1,
+  "platform": "macOS-14.3.1-arm64-arm-64bit",
+  "architecture": "arm64",
+  "python": "3.12.7"
+}

@@ -221,3 +221,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Local experiments and generated verification output
+/runs/
+/reproduced/
+/CrossQ_reexecuted.ipynb
+.DS_Store

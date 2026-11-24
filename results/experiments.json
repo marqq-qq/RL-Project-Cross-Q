@@ -1,0 +1,49 @@
+{
+  "selection": "Highest mean original return on 10 fixed validation seeds across all runs and checkpoints. Earlier step wins within-run ties. Cross-run ties follow CLI profile order: sparse, standard, step-cost.",
+  "selected_profile": "standard",
+  "total_training_steps": 600000,
+  "runs": [
+    {
+      "profile": "sparse",
+      "steps": 200000,
+      "updates": 47500,
+      "training_seconds": 305.7342325829668,
+      "step_cost": 0,
+      "train_freq": 4,
+      "best_step": 120000,
+      "validation_mean": 2.018159726591604,
+      "best_landed": 0,
+      "maximum_landed": 0,
+      "model_sha256": "a278b5fb08b57c7bf79cbf7a9335251d658c4cdda7386c3ce997449606f116f9",
+      "logs": "pilot"
+    },
+    {
+      "profile": "standard",
+      "steps": 200000,
+      "updates": 190000,
+      "training_seconds": 1196.3161103748716,
+      "step_cost": 0,
+      "train_freq": 1,
+      "best_step": 180000,
+      "validation_mean": 280.9113498748976,
+      "best_landed": 10,
+      "maximum_landed": 10,
+      "model_sha256": "04c045d5629bfcf359a753ae4c087a684f27d0782d8e36cb006538c3540b0035",
+      "logs": "."
+    },
+    {
+      "profile": "step-cost",
+      "steps": 200000,
+      "updates": 47500,
+      "training_seconds": 315.68975933175534,
+      "step_cost": 1,
+      "train_freq": 4,
+      "best_step": 200000,
+      "validation_mean": 259.19666674216916,
+      "best_landed": 10,
+      "maximum_landed": 10,
+      "model_sha256": "e24f022585ca403c2c546e97120eafea23abb02a1d38f457500818c7cb1a3a87",
+      "logs": "step_cost"
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+  "model_sha256": "04c045d5629bfcf359a753ae4c087a684f27d0782d8e36cb006538c3540b0035",
+  "intermediate_sha256": "d91e8c3c8f4fb49e69509379ec9699cf7a11b2ec700b18c6490fcc2192d272b8",
+  "evaluation_sha256": "3a333b048fd173413f39f6d19e8cc32de850a41d87e0bd2699311d64fbc9ff3c",
+  "video_sha256": "93acc6fe6c4a3af106dd0d5e300ce2ed7f497be293ad8d1efca08ea9ac592981",
+  "fps": 25,
+  "environment_fps": 50,
+  "frames": 1247,
+  "duration_seconds": 49.88,
+  "intro_frames": 55,
+  "outcome_frames": 20,
+  "summary_frames": 115,
+  "seed_rule": "Random on the first two consecutive demo seeds, intermediate on the first, selected on the first three.",
+  "episodes": [
+    {
+      "policy": "random",
+      "seed": 12000,
+      "reward": -161.99370332411348,
+      "length": 118,
+      "outcome": "crash",
+      "final_reward": -100.0,
+      "terminated": true,
+      "truncated": false,
+      "stage": "random",
+      "checkpoint_steps": null,
+      "start_frame": 55,
+      "end_frame_exclusive": 134
+    },
+    {
+      "policy": "random",
+      "seed": 12001,
+      "reward": -341.0861268778889,
+      "length": 122,
+      "outcome": "out_of_bounds",
+      "final_reward": -100.0,
+      "terminated": true,
+      "truncated": false,
+      "stage": "random",
+      "checkpoint_steps": null,
+      "start_frame": 134,
+      "end_frame_exclusive": 215
+    },
+    {
+      "policy": "crossq",
+      "seed": 12000,
+      "reward": -9.707248452387548,
+      "length": 1000,
+      "outcome": "time_limit",
+      "final_reward": -1.4890537710576055,
+      "terminated": false,
+      "truncated": true,
+      "stage": "intermediate",
+      "checkpoint_steps": 100000,
+      "start_frame": 215,
+      "end_frame_exclusive": 735
+    },
+    {
+      "policy": "crossq",
+      "seed": 12000,
+      "reward": 265.23159723344025,
+      "length": 230,
+      "outcome": "landed",
+      "final_reward": 100.0,
+      "terminated": true,
+      "truncated": false,
+      "stage": "selected",
+      "checkpoint_steps": 180000,
+      "start_frame": 735,
+      "end_frame_exclusive": 870
+    },
+    {
+      "policy": "crossq",
+      "seed": 12001,
+      "reward": 277.04574965460705,
+      "length": 255,
+      "outcome": "landed",
+      "final_reward": 100.0,
+      "terminated": true,
+      "truncated": false,
+      "stage": "selected",
+      "checkpoint_steps": 180000,
+      "start_frame": 870,
+      "end_frame_exclusive": 1018
+    },
+    {
+      "policy": "crossq",
+      "seed": 12002,
+      "reward": 255.30653892368062,
+      "length": 187,
+      "outcome": "landed",
+      "final_reward": 100.0,
+      "terminated": true,
+      "truncated": false,
+      "stage": "selected",
+      "checkpoint_steps": 180000,
+      "start_frame": 1018,
+      "end_frame_exclusive": 1132
+    }
+  ],
+  "held_out": {
+    "random": {
+      "n": 50,
+      "mean_reward": -218.12327933934202,
+      "counts": {
+        "landed": 0,
+        "crash": 30,
+        "out_of_bounds": 20,
+        "time_limit": 0
+      }
+    },
+    "crossq": {
+      "n": 50,
+      "mean_reward": 274.59366906470194,
+      "counts": {
+        "landed": 48,
+        "crash": 0,
+        "out_of_bounds": 0,
+        "time_limit": 2
+      }
+    }
+  }
+}
