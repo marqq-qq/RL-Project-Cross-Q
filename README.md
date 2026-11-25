@@ -4,7 +4,7 @@
 
 The selected policy landed on **48 of 50** held-out seeds. Its mean return was **274.59**, compared with **−218.12** for uniform random actions. Both policies flew the same initial conditions.
 
-[Live notebook](CrossQ_LunarLander_Final.ipynb) · [Defense video](videos/demo_final.mp4) · [Editable slides](Final_Presentation.pptx) · [Team defense guide](DEFENSE_GUIDE.md) · [Experiment report](REPORT.md)
+[Local flight console](#local-flight-console) · [Live notebook](CrossQ_LunarLander_Final.ipynb) · [Defense video](videos/demo_final.mp4) · [Editable slides](Final_Presentation.pptx) · [Team defense guide](DEFENSE_GUIDE.md) · [Experiment report](REPORT.md)
 
 For the **30–35 minute group defense**, start with the five-slide `Final_Presentation.pptx` or PDF. After slide 5, play `videos/demo_final.mp4` (56.16 seconds, full HD), then present `CrossQ_LunarLander_Final.ipynb`. Its five live sections cover the simulator, CrossQ, a numerical PyTorch update, training code and held-out evaluation. Open `CrossQ_LunarLander_Final.html` for the offline rendered copy. `DEFENSE_GUIDE.md` assigns the five presenters, budgets 12 minutes for the notebook and includes likely questions. The slide notes also appear in `presentation_script.md`.
 
@@ -25,6 +25,22 @@ python tests/smoke.py
 ```
 
 On Windows use `py -3.12 -m venv .venv` and activate with `.venv\Scripts\Activate.ps1` in PowerShell. Keep the environment active during installation so the Box2D build can find SWIG. The video writer uses the FFmpeg binary supplied by imageio-ffmpeg.
+
+## Local flight console
+
+Complete [Setup](#setup), then run these commands from the repository root.
+
+```bash
+source .venv/bin/activate
+python -m demo_ui.server
+```
+
+Open [127.0.0.1:8765](http://127.0.0.1:8765/). The console uses the 200,000-step
+fine-tuned checkpoint in both launch modes. Manual mode sets the initial force vector,
+lander tilt, and environment seed. Random mode uses Gymnasium's seeded random launch
+force. The console displays observations, actions, and flight telemetry. Model results shows
+the recorded lateral-start evaluation. Expand **Model details** to see the checkpoint
+filename and SHA-256. Use `--port 8766` if port 8765 is busy.
 
 ## Open the live notebook
 
