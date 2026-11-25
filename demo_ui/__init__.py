@@ -1,0 +1,1 @@
+"""Local CrossQ flight console."""

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101216">
+  <title>CrossQ Flight Lab</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">✦</span> CrossQ <span>Flight Lab</span></div>
+    <div class="connection"><i></i><span>Local simulation</span></div>
+  </header>
+  <main>
+    <div class="page-heading">
+      <div><h1>Lunar landing</h1><p>Set the launch conditions and watch the trained CrossQ agent fly.</p></div>
+      <div class="environment">LunarLander-v3 <b>·</b> Box2D</div>
+    </div>
+
+    <div class="workspace">
+      <section class="panel viewport" aria-labelledby="flight-title">
+        <header class="panel-heading">
+          <h2 id="flight-title">Flight</h2>
+          <div class="status" id="status" role="status"><i></i><span>Preparing</span></div>
+        </header>
+        <div class="scene">
+          <canvas id="scene" aria-label="Lunar lander simulation and flight path"></canvas>
+          <div class="scene-readout"><span>FLIGHT TIME</span><strong id="time">0.00 s</strong></div>
+          <div class="scene-step" id="step">0 / 1000</div>
+          <div class="scene-caption"><span class="path-line"></span> Flight path <span class="pad-line"></span> Landing pad <span class="velocity-note">Arrow · initial velocity</span></div>
+        </div>
+        <div class="transport">
+          <button type="button" id="play" class="primary" disabled><span aria-hidden="true">▶</span> Launch</button>
+          <button type="button" id="reset" class="quiet" disabled><span aria-hidden="true">↺</span> Reset</button>
+          <div class="transport-gap"></div>
+          <label for="play-speed">Speed</label>
+          <select id="play-speed" aria-label="Playback speed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option><option value="0.5">0.5×</option></select>
+        </div>
+      </section>
+
+      <section class="panel launch" aria-labelledby="launch-title">
+        <header class="panel-heading"><h2 id="launch-title">Launch setup</h2></header>
+        <form id="setup" novalidate>
+          <fieldset class="modes">
+            <legend>Mode</legend>
+            <label><input type="radio" name="mode" value="manual" checked><span>Manual</span></label>
+            <label><input type="radio" name="mode" value="random"><span>Random</span></label>
+          </fieldset>
+          <fieldset id="manual">
+            <legend class="sr-only">Manual settings</legend>
+            <div class="direction">
+              <div class="direction-input">
+                <label for="direction">Force direction</label>
+                <output id="direction-value" for="direction">−20°</output>
+                <input id="direction" name="direction" type="range" min="-180" max="180" value="-20">
+                <small>0° right · +90° up</small>
+              </div>
+              <button type="button" class="compass" id="compass" aria-label="Pick a force direction" tabindex="-1"><canvas id="dial"></canvas></button>
+            </div>
+            <div class="range-row">
+              <label for="force">Force magnitude</label><output id="force-value" for="force">750</output>
+              <input id="force" name="force" type="range" min="0" max="1500" value="750">
+            </div>
+            <div class="range-row">
+              <label for="rotation">Lander tilt</label><output id="rotation-value" for="rotation">0°</output>
+              <input id="rotation" name="rotation" type="range" min="-90" max="90" value="0">
+            </div>
+          </fieldset>
+          <div class="seed-row">
+            <label for="seed">Environment seed</label>
+            <input id="seed" name="seed" type="number" min="0" max="4294967295" value="9200" required>
+            <button class="quiet" type="button" id="random-seed">New seed</button>
+          </div>
+          <p id="error" class="error" role="alert" hidden></p>
+        </form>
+      </section>
+    </div>
+
+    <div class="details">
+      <section class="panel detail-panel" aria-labelledby="telemetry-title">
+        <header class="panel-heading"><h2 id="telemetry-title">Telemetry</h2></header>
+        <dl class="telemetry">
+          <div><dt>Position X / Y</dt><dd id="position">—</dd></div>
+          <div><dt>Height above pad</dt><dd id="altitude">—</dd></div>
+          <div><dt>Velocity Vx / Vy</dt><dd id="velocity">—</dd></div>
+          <div><dt>Angle / angular velocity</dt><dd id="attitude">—</dd></div>
+          <div><dt>Leg contact</dt><dd class="contacts"><span id="left-leg">Left</span><span id="right-leg">Right</span></dd></div>
+          <div><dt>Reward / total</dt><dd class="reward" id="reward">—</dd></div>
+        </dl>
+      </section>
+      <section class="panel detail-panel" aria-labelledby="policy-title">
+        <header class="panel-heading"><h2 id="policy-title">Policy inputs and actions</h2></header>
+        <div class="policy">
+          <div class="engine-row"><span>Main engine</span><b id="main-action">—</b><meter id="main-engine" min="0" max="1" value="0"></meter></div>
+          <div class="engine-row"><span>Side engine</span><b id="side-action">—</b><meter id="side-engine" min="0" max="1" value="0"></meter></div>
+          <table aria-label="Observation before the action"><caption>Observation before the action</caption><tbody id="observation">
+            <tr><th>X</th><th>Y</th><th>Vx</th><th>Vy</th></tr><tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+            <tr><th>Angle</th><th>Spin</th><th>Leg 1</th><th>Leg 2</th></tr><tr><td>—</td><td>—</td><td>—</td><td>—</td></tr>
+          </tbody></table>
+        </div>
+      </section>
+      <section class="panel detail-panel model-panel" aria-labelledby="model-title">
+        <header class="panel-heading"><h2 id="model-title">Model results</h2></header>
+        <div class="model-info">
+          <div id="benchmark" hidden>
+            <p class="benchmark-context" id="benchmark-context"></p>
+            <dl class="benchmark-metrics">
+              <div><dt>Landing rate</dt><dd><strong id="landing-rate">—</strong><small id="landing-count"></small></dd></div>
+              <div><dt>Timeouts</dt><dd><strong id="timeout-count">—</strong><small id="timeout-total"></small></dd></div>
+              <div><dt>Median flight time</dt><dd><strong id="median-time">—</strong><small id="median-steps"></small></dd></div>
+            </dl>
+          </div>
+          <p id="benchmark-empty" class="benchmark-context" hidden>No recorded results for this checkpoint.</p>
+          <details class="model-details">
+            <summary>Model details</summary>
+            <dl>
+              <div><dt>Checkpoint</dt><dd><code id="filename">—</code></dd></div>
+              <div><dt>Training steps</dt><dd id="model-steps">—</dd></div>
+              <div><dt>SHA-256</dt><dd><code id="sha">—</code></dd></div>
+            </dl>
+          </details>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
