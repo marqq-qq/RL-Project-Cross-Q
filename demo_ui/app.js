@@ -26,6 +26,7 @@ function degrees(radians) {
 
 function launchOptions() {
   return {
+    model: byId("model").value,
     mode: setup.querySelector("input[name=mode]:checked").value,
     seed: byId("seed").valueAsNumber,
     force: byId("force").valueAsNumber,
@@ -178,7 +179,7 @@ function showModel(model) {
   if (!results) return;
   const episodes = number.format(results.episodes);
   const landingRate = results.landings / results.episodes;
-  byId("benchmark-context").textContent = `${episodes} held-out episodes · lateral starts within ±45°`;
+  byId("benchmark-context").textContent = `${episodes} held-out episodes · random starts`;
   byId("landing-rate").textContent = number.format(landingRate * 100) + "%";
   byId("landing-count").textContent = `${number.format(results.landings)} of ${episodes} landed`;
   byId("timeout-count").textContent = number.format(results.timeouts);

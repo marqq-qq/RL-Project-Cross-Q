@@ -18,8 +18,12 @@ from experiment import ROOT, make_env, outcome
 
 
 ASSETS = Path(__file__).resolve().parent
-CHECKPOINT_PATH = Path("models/lateral45_finetuned.zip")
-RESULTS_PATH = ROOT / "results/lateral45/comparison.json"
+DEFAULT_MODEL = "original"
+CHECKPOINTS = {
+    DEFAULT_MODEL: Path("models/best_model.zip"),
+    "intermediate": Path("models/checkpoint_100000.zip"),
+}
+RESULTS_PATH = ROOT / "results/evaluation_results.json"
 STATIC = {
     "/": ("index.html", "text/html; charset=utf-8"),
     "/style.css": ("style.css", "text/css; charset=utf-8"),
@@ -58,12 +62,12 @@ class ManualStartLander(LunarLander):
 
 
 class Checkpoint:
-    def __init__(self):
-        payload = (ROOT / CHECKPOINT_PATH).read_bytes()
+    def __init__(self, path):
+        payload = (ROOT / path).read_bytes()
         self.model = CrossQ.load(io.BytesIO(payload), device="cpu")
         sha256 = hashlib.sha256(payload).hexdigest()
         self.info = {
-            "file": CHECKPOINT_PATH.as_posix(),
+            "file": path.as_posix(),
             "sha256": sha256,
             "steps": self.model.num_timesteps,
             "results": model_results(sha256),
@@ -149,12 +153,15 @@ class Flight:
 class Console:
     def __init__(self):
         self.lock = threading.Lock()
-        self.checkpoint = Checkpoint()
+        self.checkpoints = {}
         self.flights = {}
 
     def launch(self, options):
         with self.lock:
-            flight = Flight(self.checkpoint, options)
+            model = options["model"]
+            if model not in self.checkpoints:
+                self.checkpoints[model] = Checkpoint(CHECKPOINTS[model])
+            flight = Flight(self.checkpoints[model], options)
             if len(self.flights) >= 8:
                 self.flights.pop(next(iter(self.flights))).env.close()
             self.flights[flight.id] = flight
@@ -220,12 +227,12 @@ class ConsoleHandler(BaseHTTPRequestHandler):
 
 def model_results(sha256):
     try:
-        comparison = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))
+        evaluation = json.loads(RESULTS_PATH.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
         return None
-    results = comparison["after"]
-    if results["sha256"] != sha256:
+    if evaluation["model_sha256"] != sha256:
         return None
+    results = evaluation["policies"]["crossq"]
     return {
         "episodes": results["n"],
         "landings": results["counts"]["landed"],
@@ -243,10 +250,14 @@ def integer(values, key, low, high):
 
 
 def launch_options(values):
+    model = values.get("model", DEFAULT_MODEL)
+    if not isinstance(model, str) or model not in CHECKPOINTS:
+        raise ValueError("Choose an available model.")
     mode = values.get("mode")
     if mode not in ("manual", "random"):
         raise ValueError("Choose Manual or Random launch mode.")
     return {
+        "model": model,
         "mode": mode,
         "seed": integer(values, "seed", 0, 2**32 - 1),
         "force": integer(values, "force", 0, 1500),
