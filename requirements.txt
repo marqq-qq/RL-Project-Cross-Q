@@ -9,11 +9,4 @@ numpy==1.26.4
 matplotlib==3.11.2
 pandas==3.0.6
 jupyter==1.1.1
-nbconvert==7.17.2
-nbclient==0.11.0
-nbformat==5.11.1
 ipykernel==7.4.0
-imageio-ffmpeg==0.8.1
-pillow==13.0.0
-python-pptx==1.0.2
-pypdf==7.1.1
