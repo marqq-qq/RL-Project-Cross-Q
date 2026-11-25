@@ -43,6 +43,11 @@
       <section class="panel launch" aria-labelledby="launch-title">
         <header class="panel-heading"><h2 id="launch-title">Launch setup</h2></header>
         <form id="setup" novalidate>
+          <label for="model">Model</label>
+          <select id="model" name="model">
+            <option value="original" selected>CrossQ · 180,000 steps</option>
+            <option value="intermediate">CrossQ · 100,000 steps</option>
+          </select>
           <fieldset class="modes">
             <legend>Mode</legend>
             <label><input type="radio" name="mode" value="manual" checked><span>Manual</span></label>

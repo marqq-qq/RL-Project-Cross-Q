@@ -38,7 +38,7 @@ python -m pip install -r requirements.txt
 python -m demo_ui.server
 ```
 
-Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/). Manual mode lets you set the launch force, direction, rotation, and seed. Random mode uses Gymnasium's seeded launch. Both modes display observations, actions, and flight telemetry from the 200,000-step fine-tuned policy.
+Open [http://127.0.0.1:8765/](http://127.0.0.1:8765/). Flight Lab defaults to the 180,000-step checkpoint. Select the 100,000-step checkpoint to try the earlier policy. Manual mode lets you set the launch force, direction, rotation, and seed. Random mode uses Gymnasium's seeded launch. Both modes display observations, actions, and flight telemetry. Expand **Model details** to see the checkpoint file and SHA-256.
 
 ## Run the notebook
 
@@ -52,5 +52,3 @@ Select the **CrossQ Team 19** kernel and choose **Restart Kernel and Run All**. 
 ## Results
 
 We chose the 180,000-step standard checkpoint by its mean return on ten validation seeds before testing. On 50 matched held-out seeds it landed **48/50** times, with a mean return of **274.59**. Uniform random actions landed **0/50** times, with a mean return of **−218.12**. A landing means the simulator put the lander body to sleep. [Per-flight results](results/evaluation_results.csv) · [Summary](results/evaluation_results.json)
-
-Flight Lab uses a separate checkpoint fine-tuned on lateral starts. On 50 lateral test starts it landed **49/50** times, compared with **50/50** for the original checkpoint. Median episode length fell from 239 to 208.5 steps. [Lateral comparison](results/lateral45/comparison.json)
